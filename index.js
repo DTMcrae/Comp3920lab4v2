@@ -98,13 +98,13 @@ app.post('/signupSubmit', async (req, res) => {
     var username = req.body.username;
     var password = req.body.password;
 
-    const nameSchema = Joi.string().required();
+    const nameSchema = Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9_]*$'));
     const passSchema = Joi.string().required();
 
     if((nameSchema.validate(username)).error != null)
     {
         res.send(`
-        Your username is required.
+        Your username is invalid.
         <br><br>
         <a href="/signup">Try again</a>
         `);
@@ -211,7 +211,7 @@ app.get('/members', (req, res) => {
     }
 
     var html = `
-    <a2>Hello, ` + req.session.name + `.
+    <a2>Hello, ` + encodeHTML(req.session.name) + `.
     <br>
     `;
 
@@ -248,6 +248,10 @@ app.get("*", (req, res) => {
     res.status(404);
     res.send("Page not found - 404");
 })
+
+function encodeHTML(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
 app.listen(port, () => {
     console.log("Node application listening on port " + port);
